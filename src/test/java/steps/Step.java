@@ -13,8 +13,6 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
 import ru.yandex.qatools.ashot.AShot;
-import ru.yandex.qatools.ashot.Screenshot;
-import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -53,18 +51,17 @@ public class Step {
 
     @И("В выпадающем списке категорий выбрана {category}")
     public void вВыпадающемСпискеКатегорийВыбранаCategory(Category category) throws InterruptedException {
+        Thread.sleep(1000);
         WebElement elementСategory = driver.findElement(By.id("category"));
         Select select = new Select(elementСategory);
-        Thread.sleep(1000);
         select.selectByVisibleText(category.getValue());
-        Step.screenshot(driver);
+
     }
 
     @И("В поле поиска введено значение {string}")
     public void вПолеПоискаВведеноЗначениеStringForSearch(String stringForSearch) throws InterruptedException {
         Thread.sleep(1000);
         WebElement searchSearch = driver.findElement(By.id("search"));
-        Thread.sleep(1000);
         searchSearch.sendKeys(stringForSearch);
         searchSearch.sendKeys(Keys.RETURN);
         Step.screenshot(driver);
@@ -135,7 +132,7 @@ public class Step {
         {
             BufferedImage image  = new AShot().takeScreenshot(driver).getImage();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
+            ImageIO.write(image, "PNG", baos);
             baos.flush();
             byte[] imageInByte = baos.toByteArray();
             baos.close();
