@@ -16,6 +16,10 @@ import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +57,7 @@ public class Step {
         Select select = new Select(elementСategory);
         Thread.sleep(1000);
         select.selectByVisibleText(category.getValue());
+        Step.screenshot(driver);
     }
 
     @И("В поле поиска введено значение {string}")
@@ -62,6 +67,7 @@ public class Step {
         Thread.sleep(1000);
         searchSearch.sendKeys(stringForSearch);
         searchSearch.sendKeys(Keys.RETURN);
+        Step.screenshot(driver);
     }
 
     @Тогда("Кликнуть по выпадающему списку региона")
@@ -75,6 +81,7 @@ public class Step {
         driver.findElement(By.className("suggest-input-3p8yi")).sendKeys(city);
         Thread.sleep(1500);
         driver.findElement(By.className("popup-buttons-NqjQ3")).click();
+        Step.screenshot(driver);
     }
 
     @И("Нажата кнопка показать объявление")
@@ -82,6 +89,7 @@ public class Step {
         WebElement checkDelivery = driver.findElement(By.xpath("//div[@data-marker=\"delivery-filter/container\"]"));
         js.executeScript("arguments[0].scrollIntoView();", checkDelivery);
         driver.findElement(By.xpath("//button[contains(@data-marker,'search-filters')]")).click();
+        Step.screenshot(driver);
     }
 
     @Тогда("Открылась страница результаты по запросу {string}")
@@ -89,6 +97,7 @@ public class Step {
 
         String text = driver.findElement(By.cssSelector(".page-title-text-WxwN3")).getText();
         Assert.assertTrue(text.contains(stringForSearch));
+        Step.screenshot(driver);
     }
 
     @И("Активирован чекбокс только с фотографией")
@@ -97,12 +106,14 @@ public class Step {
         if (!driver.findElement(By.xpath("//span[contains(text(), 'только с фото')]")).isSelected()) {
             driver.findElement(By.xpath("//span[contains(text(), 'только с фото')]")).click();
         }
+        Step.screenshot(driver);
     }
 
     @И("В выпадающем списке сортировка выбрано значение {sort}")
     public void вВыпадающемСпискеСортировкаВыбраноЗначениеSort(Sort sort) {
         WebElement elementSelect = driver.findElement(By.xpath("//select[contains(@class,'select-select-3CHiM')]"));
         elementSelect.findElement(By.xpath("//option[. = '" + sort.getValue() + "']")).click();
+        Step.screenshot(driver);
     }
 
     @И("В консоль выведено значение название цены {int} первых товаров")
@@ -112,15 +123,28 @@ public class Step {
         for (int i = 0; i < quantity; i++) {
             System.out.println(name.get(i).getText() + " цена " + cost.get(i).getText());
         }
+        Step.screenshot(driver);
     }
 
 
 
     @Attachment(value="Screenshot", type="image/png")
-    private static Screenshot screenshot(WebDriver driver)
+    private static byte[] screenshot(WebDriver driver)
     {
-        return new AShot()
-                .shootingStrategy(ShootingStrategies.viewportPasting(100))
-                .takeScreenshot(driver);
+        try
+        {
+            BufferedImage image  = new AShot().takeScreenshot(driver).getImage();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            baos.flush();
+            byte[] imageInByte = baos.toByteArray();
+            baos.close();
+            return imageInByte;
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return "Unable to Get Screenshot.".getBytes();
     }
 }
