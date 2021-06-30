@@ -7,6 +7,7 @@ import io.cucumber.java.ParameterType;
 import io.cucumber.java.ru.И;
 import io.cucumber.java.ru.Когда;
 import io.cucumber.java.ru.Тогда;
+import io.qameta.allure.Allure;
 import io.qameta.allure.Attachment;
 import org.junit.Assert;
 import org.openqa.selenium.*;
@@ -16,6 +17,7 @@ import ru.yandex.qatools.ashot.AShot;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -55,7 +57,7 @@ public class Step {
         WebElement elementСategory = driver.findElement(By.id("category"));
         Select select = new Select(elementСategory);
         select.selectByVisibleText(category.getValue());
-
+        Step.screenshot(driver);
     }
 
     @И("В поле поиска введено значение {string}")
@@ -70,6 +72,7 @@ public class Step {
     @Тогда("Кликнуть по выпадающему списку региона")
     public void кликнутьПоВыпадающемуСпискуРегиона() {
         driver.findElement(By.className("main-text-2PaZG")).click();
+        Step.screenshot(driver);
     }
 
     @Тогда("В поле регион ввести {string}")
@@ -125,23 +128,8 @@ public class Step {
 
 
 
-    @Attachment(value="Screenshot", type="image/png")
-    private static byte[] screenshot(WebDriver driver)
-    {
-        try
-        {
-            BufferedImage image  = new AShot().takeScreenshot(driver).getImage();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "PNG", baos);
-            baos.flush();
-            byte[] imageInByte = baos.toByteArray();
-            baos.close();
-            return imageInByte;
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return "Unable to Get Screenshot.".getBytes();
+
+    public static void screenshot(WebDriver driver) {
+        Allure.addAttachment("Скришот", new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
     }
 }
